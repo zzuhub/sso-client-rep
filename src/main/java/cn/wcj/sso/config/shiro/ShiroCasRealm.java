@@ -2,6 +2,11 @@ package cn.wcj.sso.config.shiro;
 
 import java.util.Set;
 
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.cas.CasRealm;
@@ -20,15 +25,13 @@ public class ShiroCasRealm extends CasRealm{
 	@Autowired
 	private IUserService userService;
 
-
-
 	/**
 	 * 由于使用了SSO单点登录系统，此Ream只负责授权
 	 * 权限认证（为当前登录的Subject授予角色和权限）
 	 * 
 	 */
 	@Override
-	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+	public AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 		String userName = (String) super.getAvailablePrincipal(principals) ; //获取用户名 
 		TbUser user=null ;
 		SimpleAuthorizationInfo info=null ;

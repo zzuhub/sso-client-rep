@@ -1,8 +1,6 @@
-package cn.wcj.sso;
+package cn.wcj.sso.controller;
 
 import java.util.Map;
-
-import javax.validation.Valid;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -15,7 +13,6 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -79,7 +76,7 @@ public class UserController {
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public String logout(RedirectAttributes attributes){
 		SecurityUtils.getSubject().logout();
-		attributes.addFlashAttribute("message", "您已安全退出");
+//		attributes.addFlashAttribute("message", "您已安全退出");
 //		return "redirect:/login";
 		return "redirect:" + casConfig.getCasServerLogoutUrl();
 	}

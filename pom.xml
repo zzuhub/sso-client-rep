@@ -101,11 +101,11 @@
             <artifactId>shiro-freemarker-tags</artifactId>
             <version>${shiro.freemarker.version}</version>
         </dependency>
-        <dependency>
-			<groupId>org.crazycake</groupId>
-			<artifactId>shiro-redis</artifactId>
-			<version>${shiro.redis.version}</version>
-		</dependency>
+       <dependency>
+            <groupId>org.crazycake</groupId>
+            <artifactId>shiro-redis</artifactId>
+            <version>${shiro.redis.version}</version>
+        </dependency>
 		<!-- ======================shiro族系======================== -->
 		
         <!-- mysql 驱动 -->

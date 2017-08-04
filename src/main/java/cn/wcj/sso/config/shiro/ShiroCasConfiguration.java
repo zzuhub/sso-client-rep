@@ -8,12 +8,14 @@ import javax.servlet.Filter;
 
 import org.apache.shiro.cas.CasFilter;
 import org.apache.shiro.cas.CasSubjectFactory;
-import org.apache.shiro.session.mgt.DefaultSessionManager;
-import org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
+import org.crazycake.shiro.RedisCacheManager;
+import org.crazycake.shiro.RedisManager;
+import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -40,30 +42,107 @@ public class ShiroCasConfiguration {
 	
 	private static final String CAS_FILTER = "casFilter";
 	
-	@Bean
-	public JavaUuidSessionIdGenerator sessionIdGenerator(){  //随机生成SesssionID
-		  return new JavaUuidSessionIdGenerator()  ;
-	}
+//	@Bean
+//	public JavaUuidSessionIdGenerator sessionIdGenerator(){  //随机生成SesssionID
+//		  return new JavaUuidSessionIdGenerator()  ;
+//	}
+//	
+//	
+//	
+//	@Bean
+//	public RedisSessionDAO  sessionDAO(){
+//		 RedisSessionDAO redisSessionDAO=new RedisSessionDAO()  ;
+//		 redisSessionDAO.setActiveSessionsCacheName("shiro-activeSessionsCache");
+//		 redisSessionDAO.setSessionIdGenerator(this.sessionIdGenerator()) ;
+//		 return redisSessionDAO   ;
+//	}
+//	
+//	@Bean
+//	public DefaultSessionManager sessionManager(){
+//		DefaultSessionManager sessionManager=new DefaultSessionManager()  ;
+//		sessionManager.setGlobalSessionTimeout(1800000) ;
+//		sessionManager.setSessionValidationSchedulerEnabled(true) ;
+//		sessionManager.setSessionDAO(this.sessionDAO());
+//		sessionManager.setDeleteInvalidSessions(true) ;
+//		return  sessionManager  ;
+//	}
 	
 	
 	
-	@Bean
-	public RedisSessionDAO  sessionDAO(){
-		 RedisSessionDAO redisSessionDAO=new RedisSessionDAO()  ;
-		 redisSessionDAO.setActiveSessionsCacheName("shiro-activeSessionsCache");
-		 redisSessionDAO.setSessionIdGenerator(this.sessionIdGenerator()) ;
-		 return redisSessionDAO   ;
-	}
 	
-	@Bean
-	public DefaultSessionManager sessionManager(){
-		DefaultSessionManager sessionManager=new DefaultSessionManager()  ;
-		sessionManager.setGlobalSessionTimeout(1800000) ;
-		sessionManager.setSessionValidationSchedulerEnabled(true) ;
-		sessionManager.setSessionDAO(this.sessionDAO());
-		sessionManager.setDeleteInvalidSessions(true) ;
-		return  sessionManager  ;
-	}
+//	@Bean
+//	public SimpleCookie rememberMeCookie(){
+//		SimpleCookie cookie=new SimpleCookie("rememberMe")   ;
+//		cookie.setHttpOnly(true);
+//		cookie.setMaxAge(2592000) ;
+//		return cookie  ;
+//	}
+	
+//	@Bean
+//	public CookieRememberMeManager rememberMeManager(){
+//		CookieRememberMeManager rememberMeManager=new CookieRememberMeManager() ;
+//		byte[] decode = Base64.decode("4AvVhmFLUs0KTA3Kprsdag==")   ;
+//		rememberMeManager.setCipherKey(decode);
+//		rememberMeManager.setCookie(this.rememberMeCookie());
+//		return rememberMeManager ;
+//	}
+	
+//	@Bean
+//	public EhCacheManager ehCacheManager(){
+//		EhCacheManager ehCacheManager =new EhCacheManager()  ;
+//		ehCacheManager.setCacheManagerConfigFile("classpath:common/ehcache-shiro.xml");
+//		return ehCacheManager ;
+//	}
+	
+	   /**
+     * 配置shiro redisManager
+     * 使用的是shiro-redis开源插件
+     * @return
+     */
+    public RedisManager redisManager() {
+        RedisManager redisManager = new RedisManager();
+        redisManager.setHost("123.206.50.129");
+        redisManager.setPort(6379);
+        redisManager.setExpire(1800);// 配置缓存过期时间
+        redisManager.setTimeout(5000);
+        // redisManager.setPassword(password);
+        return redisManager;
+    }
+
+    /**
+     * cacheManager 缓存 redis实现
+     * 使用的是shiro-redis开源插件
+     * @return
+     */
+    public RedisCacheManager redisCacheManager() {
+        RedisCacheManager redisCacheManager = new RedisCacheManager();
+        redisCacheManager.setRedisManager(redisManager());
+        return redisCacheManager;
+    }
+
+
+    /**
+     * RedisSessionDAO shiro sessionDao层的实现 通过redis
+     * 使用的是shiro-redis开源插件
+     */
+    @Bean
+    public RedisSessionDAO redisSessionDAO() {
+        RedisSessionDAO redisSessionDAO = new RedisSessionDAO();
+        redisSessionDAO.setRedisManager(redisManager());
+        return redisSessionDAO;
+    }
+
+    /**
+     * shiro session的管理
+     */
+    @Bean
+    public DefaultWebSessionManager sessionManager() {
+        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+        sessionManager.setSessionDAO(redisSessionDAO());
+        return sessionManager;
+    }
+	
+	
    	
 	
 	@Bean(name = "shiroCasRealm")
@@ -107,6 +186,7 @@ public class ShiroCasConfiguration {
 		// 指定SubjectFactory
 		securityManager.setSubjectFactory(new CasSubjectFactory());
 		securityManager.setSessionManager(this.sessionManager());
+		securityManager.setCacheManager(this.redisCacheManager());
 		return securityManager;
 	}
 
@@ -157,5 +237,6 @@ public class ShiroCasConfiguration {
 		casFilter.setFailureUrl(casConfig.getLocalServerLoginUrl());
 		return casFilter;
 	}
+	
 
 }
