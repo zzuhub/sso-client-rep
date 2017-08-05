@@ -2,10 +2,10 @@ package cn.wcj.sso.config.shiro;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/**
- * Created by Administrator on 2016/12/8 0008.
- */
-@ConfigurationProperties(prefix = "cas")
+
+
+//使用了这个注解可以方便的引用前缀
+@ConfigurationProperties(prefix = "shiro.cas")
 public class CasConfig {
 	
 	private String casServerUrlPrefix  ;  //CAS服务器地址

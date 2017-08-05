@@ -2,12 +2,11 @@ package cn.wcj.sso.config;
 
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+
 
 
 /**
@@ -20,7 +19,6 @@ import org.springframework.context.annotation.PropertySource;
  * Tips:application.properties不用导入，SpringBoot自己处理
  */
 @Configuration
-@PropertySource(value = { "classpath:common/jdbc.properties"})
 @ComponentScan(basePackages = "cn.wcj.sso") //加载其他JavaConfig
 @SpringBootApplication
 public class ApplicationConfig extends SpringBootServletInitializer{

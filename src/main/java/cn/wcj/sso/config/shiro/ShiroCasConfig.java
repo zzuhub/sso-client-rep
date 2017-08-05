@@ -17,6 +17,8 @@ import org.crazycake.shiro.RedisCacheManager;
 import org.crazycake.shiro.RedisManager;
 import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -35,13 +37,14 @@ import cn.wcj.sso.config.redis.RedisConfig;
  * @date 2017年8月4日 下午9:10:26
  */
 @Configuration
-@EnableConfigurationProperties(CasConfig.class)
+@EnableConfigurationProperties({CasConfig.class,ShiroRedisConfig.class})
 @AutoConfigureAfter(RedisConfig.class)  //在Redis配置完成后加载
-public class ShiroCasConfiguration {
+public class ShiroCasConfig {
 	
 	
 	private static final String CAS_FILTER = "casFilter";
-	
+
+//原生Redis保存Session的思路，不过不好用，测试未通过考验	
 //	@Bean
 //	public JavaUuidSessionIdGenerator sessionIdGenerator(){  //随机生成SesssionID
 //		  return new JavaUuidSessionIdGenerator()  ;
@@ -94,18 +97,34 @@ public class ShiroCasConfiguration {
 //		return ehCacheManager ;
 //	}
 	
-	   /**
+//	private String host="123.206.50.129"  ;   //redis地址
+//	
+//	private Integer port=6379 ;   //端口
+//	
+//	private Integer timeout  =1800  ;   //超时时间 
+//	
+//	private Integer expire =5000  ;    //过期时间
+	
+	
+	
+	@Bean
+	public ShiroRedisConfig shiroRedisConfig(){
+		 return new ShiroRedisConfig()  ;
+	}
+
+	/**
      * 配置shiro redisManager
      * 使用的是shiro-redis开源插件
      * @return
      */
     public RedisManager redisManager() {
         RedisManager redisManager = new RedisManager();
-        redisManager.setHost("123.206.50.129");
-        redisManager.setPort(6379);
-        redisManager.setExpire(1800);// 配置缓存过期时间
-        redisManager.setTimeout(5000);
-        // redisManager.setPassword(password);
+        ShiroRedisConfig shiroRedisConfig = shiroRedisConfig();
+        redisManager.setHost(shiroRedisConfig.getHost());
+        redisManager.setPort(shiroRedisConfig.getPort());
+        redisManager.setExpire(shiroRedisConfig.getExpire());// 配置缓存过期时间
+        redisManager.setTimeout(shiroRedisConfig.getTimeout());
+        //redisManager.setPassword(password);  //内网无密码，提高速度
         return redisManager;
     }
 

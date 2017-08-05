@@ -16,7 +16,7 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
  * @date 2017年8月4日 下午8:34:19
  */
 @Component
-public class ShiroTagFreeMarkerConfigurer implements InitializingBean {
+public class ShiroTagFreeMarkerConfig implements InitializingBean {
 
 	@Autowired
 	private Configuration configuration;
